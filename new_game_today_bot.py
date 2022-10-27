@@ -1,4 +1,3 @@
-# This example requires the 'message_content' intent.
 import asyncio
 import os
 from datetime import datetime, timedelta
@@ -6,6 +5,8 @@ from datetime import datetime, timedelta
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+
+from scrape_daily_release import get_game_today
 
 load_dotenv(dotenv_path="config")
 
@@ -20,18 +21,20 @@ channel_id = 1035117968054566955
 @bot.command('today')
 async def send_game(ctx):
     if ctx.channel == bot.get_channel(channel_id):
-        await ctx.channel.send('test')
+        todays_game = get_game_today()
+        await ctx.channel.send(todays_game)
 
     
 async def schedule_daily_new_game():
     while True:
         now = datetime.now()
         then = now + timedelta(days=1)
-        then.replace(hour=7,minute=0,second=0)
+        then.replace(hour=7,minute=30,second=0)
         wait_time = (then-now).total_seconds()
         await asyncio.sleep(wait_time)
         channel = bot.get_channel(channel_id)
-        await channel.send('Message Test')  # type: ignore
+        todays_game = get_game_today()
+        await channel.send(todays_game)  # type: ignore
 
 
 @bot.event
