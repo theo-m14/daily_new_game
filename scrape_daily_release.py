@@ -10,7 +10,7 @@ class Game():
         self.date = date
         self.name = name
         self.platforms = platforms
-        self.searchLink = 'https://www.google.com/search?q=' + name + '+jeu' 
+        self.searchLink = 'https://www.google.com/search?q=' + name.replace(' ','') + '+jeu' 
 
     @staticmethod
     def convertStringToGame(string: str):
@@ -20,33 +20,39 @@ class Game():
         return Game(name,platforms,date)
     
     def __str__(self) -> str:
-        return self.name + ' - Plateformes: ' + self.platforms + ' - Date de sortie: ' + self.date + " - Plus d'info : " + self.searchLink
+        return self.name + ' - Plateforme: ' + self.platforms + ' - Date de sortie: ' + self.date + " - Plus d'info : " + self.searchLink
 
 
-def get_game_today():
-    url = 'https://www.millenium.org/guide/111787.html'
+class GameReleaseScraper():
 
-    response = requests.get(url)
+    @staticmethod
+    def filterGame(filter_html):
+        all_game = []
+        for game in filter_html:
+            game = game.get_text(strip=True)
+            if ':' in game and '-' in game and has_numbers(game):
+                all_game.append(Game.convertStringToGame(game))
+        return all_game
 
-    html = response.content
+    @staticmethod
+    def getGameToday():
+        month_in_string = get_month_in_string()
+        day = str(datetime.now().day)
+        all_game = GameReleaseScraper.getAllGame()
+        game_today = []
+        for game in all_game:
+            if day in game.date and month_in_string in game.date:
+                game_today.append(game)
+        if game_today != []:
+            return game_today
+        else:
+            return ["Pas de jeu aujourd'hui"]
 
-    soup = BeautifulSoup(html, 'html.parser')
-
-    all_game_release = soup.find_all('li', attrs={'class' : 'article__ulist-item'})
-
-    month_in_string = get_month_in_string()
-    day = str(datetime.now().day)
-
-    game_string = ''
-    for game in all_game_release:
-        game = game.get_text(strip=True) 
-        if ':' in game and '-' in game and has_numbers(game):
-            if month_in_string in game and day in game:
-                game_string += game + '\n'
-                
-    if game_string == '':
-        return "Pas de jeu aujourd'hui"
-    return game_string
-
-
-
+    @staticmethod
+    def getAllGame():
+        url = 'https://www.millenium.org/guide/111787.html'
+        response = requests.get(url)
+        html = response.content
+        soup = BeautifulSoup(html, 'html.parser')
+        filter_html = soup.find_all('li', attrs={'class' : 'article__ulist-item'})
+        return GameReleaseScraper.filterGame(filter_html)

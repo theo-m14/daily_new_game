@@ -27,4 +27,4 @@ class TestGame():
 
 
     def test_game_to_string(self):
-        assert str(self.game) == "Mario - Plateformes: PC - Date de sortie: 30 octobre - Plus d'info : https://www.google.com/search?q=Mario+jeu"
+        assert str(self.game) == "Mario - Plateforme: PC - Date de sortie: 30 octobre - Plus d'info : https://www.google.com/search?q=Mario+jeu"
