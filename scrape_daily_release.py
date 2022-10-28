@@ -35,20 +35,6 @@ class GameReleaseScraper():
         return all_game
 
     @staticmethod
-    def getGameToday():
-        month_in_string = get_month_in_string()
-        day = str(datetime.now().day)
-        all_game = GameReleaseScraper.getAllGame()
-        game_today = []
-        for game in all_game:
-            if day in game.date and month_in_string in game.date:
-                game_today.append(game)
-        if game_today != []:
-            return game_today
-        else:
-            return ["Pas de jeu aujourd'hui"]
-
-    @staticmethod
     def getAllGame():
         url = 'https://www.millenium.org/guide/111787.html'
         response = requests.get(url)
@@ -56,3 +42,39 @@ class GameReleaseScraper():
         soup = BeautifulSoup(html, 'html.parser')
         filter_html = soup.find_all('li', attrs={'class' : 'article__ulist-item'})
         return GameReleaseScraper.filterGame(filter_html)
+
+    @staticmethod
+    def getGamePerDay(required_day):
+        month_in_string = get_month_in_string()
+        all_game = GameReleaseScraper.getAllGame()
+        game_this_day = []
+        for game in all_game:
+            if required_day in game.date and month_in_string in game.date:
+                game_this_day.append(game)
+        return game_this_day
+
+    @staticmethod
+    def getGameNextWeek():
+        month_in_string = get_month_in_string()
+        all_game = GameReleaseScraper.getAllGame()
+        game_this_week = []
+        today = datetime.now().day
+        for game in all_game:
+            if game.date[0:2].isnumeric():
+                game_day = int(game.date[0:2])
+            else:
+                '''At maximum day are 31 so 38 jump next condition'''
+                game_day = 38
+            if game_day < today + 7 and game_day >= today and month_in_string in game.date:
+                game_this_week.append(game)
+        return game_this_week
+        
+    @staticmethod
+    def getGameActualMonth():
+        month_in_string = get_month_in_string()
+        all_game = GameReleaseScraper.getAllGame()
+        game_this_month = []
+        for game in all_game:
+            if month_in_string in game.date:
+               game_this_month.append(game)
+        return game_this_month
