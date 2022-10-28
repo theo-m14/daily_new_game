@@ -14,9 +14,9 @@ class Game():
 
     @staticmethod
     def convertStringToGame(string: str):
-        name = string[0:string.index(':')]
-        platforms = string[string.index(':')+2:string.index('-')-1]
-        date = string[string.index('-')+2:len(string)]
+        name = string[0:string.rfind(':')]
+        platforms = string[string.rfind(':')+2:string.rfind('-')-1]
+        date = string[string.rfind('-')+2:len(string)]
         return Game(name,platforms,date)
     
     def __str__(self) -> str:
